@@ -21,6 +21,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function () {
     // User
     Route::get('/users', 'UserController@index');
     Route::delete('/user/{id}', 'UserController@destroy');
+    Route::get('/user/{id}', 'UserController@show');
     Route::post('/user', 'UserController@store');
     Route::put('/user/{id}', 'UserController@update');
 });
@@ -29,6 +30,7 @@ Route::group(['prefix' => 'v2', 'namespace' => 'API'], function (){
     // Todos
     Route::get('/todos','TodoController@index');
     Route::post('/todo', 'TodoController@store');
+    Route::get('/todo/{id}', 'TodoController@show');
     Route::put('/todo/{id}', 'TodoController@update');
     Route::delete('/todo/{id}', 'TodoController@destroy');
 });

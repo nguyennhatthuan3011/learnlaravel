@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TodoStoreRequest;
 use App\Http\Requests\TodoUpdateStoreRequest;
 use App\Todo;
+use App\Transformers\TodoTransformer;
 use App\User;
 use http\Env\Response;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,16 +18,21 @@ class TodoController extends Controller
      *
      * @return Todo[]|Collection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $todo = Todo::all();
-        return $todo;
+        if ($perPage = $request->get('perPage'))
+        {
+            $todo = Todo::paginate($perPage);
+        }else {
+            $todo = Todo::all();
+        }
+        return responder()->success($todo, TodoTransformer::class)->respond();
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param TodoStoreRequest $request
      * @return bool
      */
     public function store(TodoStoreRequest $request)
@@ -39,9 +45,7 @@ class TodoController extends Controller
         $todo = new Todo();
         $todo->fill($data);
         $user->todos()->save($todo);
-        return response($data, 200)
-            ->header('Content-Type', 'application/json');
-//        return responder()->success($data)->respond();
+        return responder()->success($data, new TodoTransformer())->respond();
     }
 
     /**
@@ -52,7 +56,8 @@ class TodoController extends Controller
      */
     public function show($id)
     {
-        //
+        $todo = Todo::where('user_id', $id);
+        return responder()->success($todo, TodoTransformer::class)->respond();
     }
 
     /**
@@ -71,7 +76,7 @@ class TodoController extends Controller
         $todo = Todo::find($id);
         $todo->fill($data);
         $todo->save();
-        return responder()->success($data)->respond();
+        return responder()->success($data,TodoTransformer::class)->respond();
     }
 
     /**
@@ -84,6 +89,6 @@ class TodoController extends Controller
     {
         $todo = Todo::find($id);
         $todo->delete();
-        return responder()->success($user)->respond(201);
+        return responder()->success($todo,TodoTransformer::class)->respond(204);
     }
 }

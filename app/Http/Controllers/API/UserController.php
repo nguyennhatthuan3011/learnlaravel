@@ -2,22 +2,28 @@
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserUpdateStoreRequest;
+use App\Transformers\UserTransformer;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserStoreRequest;
-use App\User;
 use Illuminate\Http\Response;
+use App\User;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::all();
-        return responder()->success($user)->respond();
+        if($perPage = $request->get('perPage')){
+            $user = User::paginate($perPage);
+        }else{
+            $user = User::all();
+        }
+        return responder()->success($user , UserTransformer::class)->respond();
     }
 
     /**
@@ -46,7 +52,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        return responder()->success($user, new UserTransformer)->respond();
     }
 
     /**
@@ -65,7 +72,7 @@ class UserController extends Controller
         }
         $user->fill($data);
         $user->save();
-        return responder()->success($user)->respond(201);
+        return responder()->success($user,UserTransformer::class)->respond(201);
     }
 
     /**
@@ -77,7 +84,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        $user->delete();
+        $user->Delete();
         return responder()->success($user)->respond(204);
     }
 }
