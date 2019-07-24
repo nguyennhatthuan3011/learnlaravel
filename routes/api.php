@@ -25,7 +25,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function () {
     Route::put('/user/{id}', 'UserController@update');
 });
 
-
-// Todos
-
-//Route::get('/todos','TodoController@index');
+Route::group(['prefix' => 'v2', 'namespace' => 'API'], function (){
+    // Todos
+    Route::get('/todos','TodoController@index');
+    Route::post('/todo', 'TodoController@store');
+    Route::put('/todo/{id}', 'TodoController@update');
+    Route::delete('/todo/{id}', 'TodoController@destroy');
+});

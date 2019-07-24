@@ -17,7 +17,7 @@ class UserController extends Controller
     public function index()
     {
         $user = User::all();
-        return $user;
+        return responder()->success($user)->respond();
     }
 
     /**
@@ -35,14 +35,7 @@ class UserController extends Controller
         $user = new User();
         $user->fill($data);
         $user->save();
-//        $user = User::create([
-//            'name' => $req('name'),
-//            'username' => $req('username'),
-//            'email' => $req('email'),
-//            'phone' => $req('phone'),
-//            'website' => $req('website'),
-//        ]);
-        return $user;
+        return responder()->success($user)->respond(201);
     }
 
     /**
@@ -63,16 +56,16 @@ class UserController extends Controller
      * @param int $id
      * @return bool
      */
-    public function update(Request $request, $id)
+    public function update(UserUpdateStoreRequest $request, $id)
     {
-        $data = $request->all();
+        $data = $request->validated();
         $user = User::find($id);
         if (!$user){
             return false;
         }
         $user->fill($data);
         $user->save();
-        return $user;
+        return responder()->success($user)->respond(201);
     }
 
     /**
@@ -84,7 +77,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        $user->save();
-        return $user;
+        $user->delete();
+        return responder()->success($user)->respond(204);
     }
 }
