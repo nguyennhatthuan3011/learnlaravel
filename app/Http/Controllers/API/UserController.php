@@ -14,18 +14,32 @@ class UserController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return Response
+     * @return User[]|\Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
      */
     public function index(Request $request)
     {
+        $user = User::query();
+        $user->when(request('username'), function ($user) use ($request) {
+            $username = $request->get('username');
+           return $user->where('username', 'like' ,'%' .$username. '%');
+        })
+        ->when(request('name'), function ($user) use ($request){
+            $name = $request->get('name');
+            return $user->where('name', 'like' ,'%' .$name. '%');
+        });
         if($perPage = $request->get('perPage')){
-            $user = User::paginate($perPage);
+            $user = $user->paginate($perPage);
         }else{
-            $user = User::all();
+            $user = $user->get();
         }
-        return responder()->success($user , UserTransformer::class)->respond();
+        return responder()->success($user, UserTransformer::class)->respond();
     }
 
+    public function showUsername(Request $request){
+        $username = $request->get('username');
+        $user = User::where('username', $username);
+        return $user;
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -55,6 +69,7 @@ class UserController extends Controller
         $user = User::find($id);
         return responder()->success($user, new UserTransformer)->respond();
     }
+
 
     /**
      * Update the specified resource in storage.

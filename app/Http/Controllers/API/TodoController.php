@@ -16,6 +16,7 @@ class TodoController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return Todo[]|Collection
      */
     public function index(Request $request)
@@ -45,18 +46,28 @@ class TodoController extends Controller
         $todo = new Todo();
         $todo->fill($data);
         $user->todos()->save($todo);
-        return responder()->success($data, new TodoTransformer())->respond();
+        return responder()->success($todo, TodoTransformer::class)->respond();
     }
 
-    /**
+    public function showTodo($id){
+        $todo = Todo::find($id);
+        return responder()->success($todo, TodoTransformer::class)->respond();
+    }
+
+        /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param Request $request
+     * @param $user_id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $user_id)
     {
-        $todo = Todo::where('user_id', $id);
+        if ($perPage = $request->get('perPage')){
+            $todo = Todo::where('user_id', $user_id)->paginate($perPage);
+        }else{
+            $todo = Todo::where('user_id', $user_id);
+        }
         return responder()->success($todo, TodoTransformer::class)->respond();
     }
 
@@ -76,7 +87,7 @@ class TodoController extends Controller
         $todo = Todo::find($id);
         $todo->fill($data);
         $todo->save();
-        return responder()->success($data,TodoTransformer::class)->respond();
+        return responder()->success($todo, TodoTransformer::class)->respond();
     }
 
     /**

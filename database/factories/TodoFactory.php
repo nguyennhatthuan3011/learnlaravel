@@ -8,7 +8,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Todo::class, function (Faker $faker) {
     return [
         'user_id'=> $faker->numberBetween(1, App\User::count()),
-        'title' => Str::random(100),
+        'title' => Str::random(10),
         'complete' => $faker->boolean(),
     ];
 });
