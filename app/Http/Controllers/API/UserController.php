@@ -99,7 +99,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        $user->Delete();
+        $user->delete();
         return responder()->success($user)->respond(204);
     }
 }
