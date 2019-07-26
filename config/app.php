@@ -2,6 +2,9 @@
 
 return [
 
+    Flugg\Responder\ResponderServiceProvider::class,
+    'Responder' => Flugg\Responder\Facades\Responder::class,
+    'Transformation' => Flugg\Responder\Facades\Transformation::class,
     /*
     |--------------------------------------------------------------------------
     | Application Name

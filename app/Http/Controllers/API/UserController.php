@@ -2,24 +2,44 @@
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserUpdateStoreRequest;
+use App\Transformers\UserTransformer;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserStoreRequest;
-use App\User;
 use Illuminate\Http\Response;
+use App\User;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @param Request $request
+     * @return User[]|\Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::all();
-        return $user;
+        $user = User::query();
+        $user->when(request('username'), function ($user) use ($request) {
+            $username = $request->get('username');
+           return $user->where('username', 'like' ,'%' .$username. '%');
+        })
+        ->when(request('name'), function ($user) use ($request){
+            $name = $request->get('name');
+            return $user->where('name', 'like' ,'%' .$name. '%');
+        });
+        if($perPage = $request->get('perPage')){
+            $user = $user->paginate($perPage);
+        }else{
+            $user = $user->get();
+        }
+        return responder()->success($user, UserTransformer::class)->respond();
     }
 
+    public function showUsername(Request $request){
+        $username = $request->get('username');
+        $user = User::where('username', $username);
+        return $user;
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -35,14 +55,7 @@ class UserController extends Controller
         $user = new User();
         $user->fill($data);
         $user->save();
-//        $user = User::create([
-//            'name' => $req('name'),
-//            'username' => $req('username'),
-//            'email' => $req('email'),
-//            'phone' => $req('phone'),
-//            'website' => $req('website'),
-//        ]);
-        return $user;
+        return responder()->success($user)->respond(201);
     }
 
     /**
@@ -53,8 +66,10 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        return responder()->success($user, new UserTransformer)->respond();
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -63,16 +78,16 @@ class UserController extends Controller
      * @param int $id
      * @return bool
      */
-    public function update(Request $request, $id)
+    public function update(UserUpdateStoreRequest $request, $id)
     {
-        $data = $request->all();
+        $data = $request->validated();
         $user = User::find($id);
         if (!$user){
             return false;
         }
         $user->fill($data);
         $user->save();
-        return $user;
+        return responder()->success($user,UserTransformer::class)->respond(201);
     }
 
     /**
@@ -84,7 +99,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        $user->save();
-        return $user;
+        $user->delete();
+        return responder()->success($user)->respond(204);
     }
 }

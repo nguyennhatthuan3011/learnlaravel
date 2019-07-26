@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,11 +11,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 /**
  * @method static where(string $string, int $id)
  * @method static find(int $id)
+ * @method static paginate()
  */
 class User extends Authenticatable
 {
     use Notifiable;
-
+    use SoftDeletes;
+    protected $dates =['deleted_at'];
     /**
      * The attributes that are mass assignable.
      *
@@ -43,6 +46,6 @@ class User extends Authenticatable
     ];
 
     public function todos(){
-       return $this->hasMany('App\Todos', 'user_id', 'id');
+       return $this->hasMany('App\Todo', 'user_id', 'id');
     }
 }
