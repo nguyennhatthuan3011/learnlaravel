@@ -18,10 +18,10 @@ use Faker\Generator as Faker;
 
 $factory->define(User::class, function (Faker $faker) {
     return [
-        'name' => Str::random(10),
-        'username' => Str::random(10),
-        'email' => Str::random(10).'@gmail.com',
-        'phone' => $faker->randomNumber(2),
+        'name' => $faker->name,
+        'username' => $faker->userName,
+        'email' => $faker->unique()->email,
+        'phone' => $faker->randomNumber(2)  ,
         'website' => Str::random(10),
     ];
 });
